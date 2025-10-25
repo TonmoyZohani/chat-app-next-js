@@ -1,16 +1,14 @@
 import React from "react";
 
 interface ChatMessageProps {
+  sender: string;
   message: string;
   isOwnMessage: boolean;
-  isSystemMessage: boolean;
 }
 
-const ChatMessage = ({
-  message,
-  isOwnMessage,
-  isSystemMessage,
-}: ChatMessageProps) => {
+const ChatMessage = ({ sender, message, isOwnMessage }: ChatMessageProps) => {
+  const isSystemMessage = sender === "system";
+
   return (
     <div
       className={`flex ${
@@ -30,6 +28,7 @@ const ChatMessage = ({
             : "bg-gray-200 text-gray-900"
         }`}
       >
+        {!isSystemMessage && <p className="text-sm font-bold">{sender}:</p>}
         {message}
       </div>
     </div>
