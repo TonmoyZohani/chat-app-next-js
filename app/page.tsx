@@ -13,6 +13,10 @@ export default function Home() {
   const [userName, setUserName] = useState<string>("");
 
   useEffect(() => {
+    socket.on("message", (data) => {
+      setMessages((prev) => [...prev, data]);
+    });
+
     socket.on("user-joined", (message: string) => {
       setMessages((prev) => [...prev, { sender: "system", message }]);
     });
@@ -32,9 +36,12 @@ export default function Home() {
   };
 
   const handleSendMessage = (message: string) => {
-    if (!message.trim()) return;
-    const newMessage = { sender: userName || "You", message };
-    setMessages((prev) => [...prev, newMessage]);
+    // if (!message.trim()) return;
+    // const newMessage = { sender: userName || "You", message };
+    // setMessages((prev) => [...prev, newMessage]);
+    const data = { room, message, sender: userName };
+    setMessages((prev) => [...prev, { sender: userName, message }]);
+    socket.emit("message", data);
   };
 
   return (
@@ -46,7 +53,7 @@ export default function Home() {
           <div className="flex flex-col gap-4">
             <input
               type="text"
-              placeholder="Enter your name"
+              placeholder="Enter your username"
               className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none"
               onChange={(e) => setUserName(e.target.value)}
             />
