@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
+import { use } from "react";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = process.env.HOSTNAME || "localhost";
@@ -15,6 +16,16 @@ app.prepare().then(() => {
 
   io.on("connection", (socket) => {
     console.log(`User is connected ${socket.id}`);
+
+    socket.on("join-room", ({ room, userName }) => {
+      console.log(`User ${userName} joined room ${room}`);
+      socket.join(room);
+      socket.to(room).emit("user-joined", `${userName} joined the room`);
+    });
+
+    socket.on("disconnect", () => {
+      console.log(`User is disconnected ${socket.id}`);
+    });
   });
 
   httpServer.listen(port, () => {
