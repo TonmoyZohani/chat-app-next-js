@@ -1,7 +1,8 @@
 "use client";
 import ChatForm from "@/components/ChatForm";
 import ChatMessage from "@/components/ChatMessage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { socket } from "@/lib/socketClient";
 
 export default function Home() {
   const [room, setRoom] = useState<string>("");
@@ -11,8 +12,22 @@ export default function Home() {
   >([]);
   const [userName, setUserName] = useState<string>("");
 
-  const handleJoinRoom = (roomName: string) => {
-    if (!roomName.trim()) return alert("Please enter a room name!");
+  useEffect(() => {
+    socket.on("user-joined", (message: string) => {
+      setMessages((prev) => [...prev, { sender: "system", message }]);
+    });
+
+    return () => {
+      socket.off("user-joined");
+      socket.off("message");
+    };
+  }, []);
+
+  const handleJoinRoom = (room: string) => {
+    // if (!roomName.trim()) return alert("Please enter a room name!");
+    if (room && userName) {
+      socket.emit("join-room", { room: room, userName: userName });
+    }
     setJoined(true);
   };
 
